@@ -6,17 +6,23 @@ import 'dialog_launcher.dart';
 class WindowsDialogLauncher extends DialogLauncher {
   @override
   Future<String> alertDialog(String title, String message, {String okButtonText = "OK"}) async {
-    var script = 'Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show("$message", "$title", [System.Windows.MessageBoxButton]::OK)';
+    var script = "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('$message', '$title', [System.Windows.MessageBoxButton]::OK)";
     var cmd = 'powershell -Command "$script"';
     var result = await runCmd(cmd.toCmdLine());
+    if (result.exitCode != 0) {
+      throw Exception(result.stderr);
+    }
     return result.stdout.trim();
   }
 
   @override
   Future<String> confirmDialog(String title, String message, {String yesText = "Yes", String noText = "No"}) async {
-    var script = 'Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show("$message", "$title", [System.Windows.MessageBoxButton]::YesNo)';
+    var script = "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('$message',  '$title', [System.Windows.MessageBoxButton]::YesNo)";
     var cmd = 'powershell -Command "$script"';
     var result = await runCmd(cmd.toCmdLine());
+    if (result.exitCode != 0) {
+      throw Exception(result.stderr);
+    }
     return result.exitCode == 0 ? yesText : noText;
   }
 
@@ -30,18 +36,24 @@ class WindowsDialogLauncher extends DialogLauncher {
   @override
   Future<String> selectFileDialog(String title) async {
     var script =
-        '[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms");\$dialog = New-Object System.Windows.Forms.OpenFileDialog;\$dialog.Title = "$title";if (\$dialog.ShowDialog() -eq "OK") { \$dialog.FileName } else { "" }';
+        "[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms');\$dialog = New-Object System.Windows.Forms.OpenFileDialog;\$dialog.Title = '$title';if (\$dialog.ShowDialog() -eq 'OK') { \$dialog.FileName } else { '' }";
     var cmd = 'powershell -Command "$script"';
     var result = await runCmd(cmd.toCmdLine());
+    if (result.exitCode != 0) {
+      throw Exception(result.stderr);
+    }
     return result.stdout.trim();
   }
 
   @override
   Future<String> selectFolderDialog(String title) async {
     var script =
-        '[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms");\$dialog = New-Object System.Windows.Forms.FolderBrowserDialog;\$dialog.Description = "$title";if (\$dialog.ShowDialog() -eq "OK") { \$dialog.SelectedPath } else { "" }';
+        "[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms');\$dialog = New-Object System.Windows.Forms.FolderBrowserDialog;\$dialog.Description = '$title';if (\$dialog.ShowDialog() -eq 'OK') { \$dialog.SelectedPath } else { '' }";
     var cmd = 'powershell -Command "$script"';
     var result = await runCmd(cmd.toCmdLine());
+    if (result.exitCode != 0) {
+      throw Exception(result.stderr);
+    }
     return result.stdout.trim();
   }
 }
